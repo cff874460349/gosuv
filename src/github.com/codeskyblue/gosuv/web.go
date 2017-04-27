@@ -38,37 +38,37 @@ type VscpCfg struct {
 	Name    string `yaml:"name" json:"name"`
 	Procnum int    `yaml:"procnum" json:"procnum"`
 	Iopmac  string `yaml:"iopmac" json:"iopmac"`
-	Kyee	struct {
-		Enable string `yaml:"kyee" json:"kyee"`
-		TagMac string `yaml:"tag_mac" json:"tag_mac"`
-		TagNum int `yaml:"tag_num" json:"tag_num"`
-		DataHb string `yaml:"data_hb" json:"data_hb"`
-		DataHbTimes int `yaml:"data_hb_times" json:"data_hb_times"`
-		DataHbInter int `yaml:"data_hb_inter" json:"data_hb_inter"`
-		DataOff string `yaml:"data_off" json:"data_off"`
-		DataOffTimes int `yaml:"data_off_times" json:"data_off_times"`
-		DataOffInter int `yaml:"data_off_inter" json:"data_off_inter"`
-		DataOut string `yaml:"data_out" json:"data_out"`
-		DataOutTimes int `yaml:"data_out_times" json:"data_out_times"`
-		DataOutInter int `yaml:"data_out_inter" json:"data_out_inter"`
+	Kyee    struct {
+		Enable       string `yaml:"kyee" json:"kyee"`
+		TagMac       string `yaml:"tag_mac" json:"tag_mac"`
+		TagNum       int    `yaml:"tag_num" json:"tag_num"`
+		DataHb       string `yaml:"data_hb" json:"data_hb"`
+		DataHbTimes  int    `yaml:"data_hb_times" json:"data_hb_times"`
+		DataHbInter  int    `yaml:"data_hb_inter" json:"data_hb_inter"`
+		DataOff      string `yaml:"data_off" json:"data_off"`
+		DataOffTimes int    `yaml:"data_off_times" json:"data_off_times"`
+		DataOffInter int    `yaml:"data_off_inter" json:"data_off_inter"`
+		DataOut      string `yaml:"data_out" json:"data_out"`
+		DataOutTimes int    `yaml:"data_out_times" json:"data_out_times"`
+		DataOutInter int    `yaml:"data_out_inter" json:"data_out_inter"`
 	} `yaml:"kyee" json:"kyee"`
-	Ladrip	struct {
+	Ladrip struct {
 		Enable string `yaml:"ladrip" json:"ladrip"`
 		TagMac string `yaml:"tag_mac" json:"tag_mac"`
-		TagNum int `yaml:"tag_num" json:"tag_num"`
+		TagNum int    `yaml:"tag_num" json:"tag_num"`
 		DataW  string `yaml:"data_weight" json:"data_weight"`
 		DataE2 string `yaml:"data_e2" json:"data_e2"`
 	} `yaml:"ladrip" json:"ladrip"`
-	Ewell	struct {
-		Enable string `yaml:"ewell" json:"ewell"`
-		TagMac string `yaml:"tag_mac" json:"tag_mac"`
-		TagNum int `yaml:"tag_num" json:"tag_num"`
-		DataSts  string `yaml:"data_sts" json:"data_sts"`
-		DataDat  string `yaml:"data_dat" json:"data_dat"`
-		DataDatInter int `yaml:"data_dat_inter" json:"data_dat_inter"`
-		DataDatTimes int `yaml:"data_dat_times" json:"data_dat_times"`
+	Ewell struct {
+		Enable       string `yaml:"ewell" json:"ewell"`
+		TagMac       string `yaml:"tag_mac" json:"tag_mac"`
+		TagNum       int    `yaml:"tag_num" json:"tag_num"`
+		DataSts      string `yaml:"data_sts" json:"data_sts"`
+		DataDat      string `yaml:"data_dat" json:"data_dat"`
+		DataDatInter int    `yaml:"data_dat_inter" json:"data_dat_inter"`
+		DataDatTimes int    `yaml:"data_dat_times" json:"data_dat_times"`
 	} `yaml:"ewell" json:"ewell"`
-	
+
 	Controller struct {
 		Ip string `yaml:"ip" json:"ip"`
 	} `yaml:"controller" json:"controller"`
@@ -183,14 +183,14 @@ func (s *Supervisor) addOrUpdateProgram(pg Program) error {
 		}()
 		//isRunning := origProc.IsRunning()
 		//go func() {
-			//s.stopAndWait(origProc.Name)
+		//s.stopAndWait(origProc.Name)
 
-			newProc := s.newProcess(pg)
-			s.procMap[pg.Name] = newProc
-			s.pgMap[pg.Name] = pg // update origin
-			//if isRunning {
-			//	newProc.Operate(StartEvent)
-			//}
+		newProc := s.newProcess(pg)
+		s.procMap[pg.Name] = newProc
+		s.pgMap[pg.Name] = pg // update origin
+		//if isRunning {
+		//	newProc.Operate(StartEvent)
+		//}
 		//}()
 	} else {
 		s.names = append(s.names, pg.Name)
@@ -528,23 +528,24 @@ func (s *Supervisor) hAddProgram(w http.ResponseWriter, r *http.Request) {
 		cfg.Ewell.DataSts = "0"
 	}
 	cfg.Ewell.DataDatInter = ewell_dat_inter
+	fmt.Sprintf("Ewell dat Inter = %d \n", ewell_dat_inter)
 	cfg.Ewell.DataDatTimes = ewell_dat_times
 	cfg.Controller.Ip = r.FormValue("ip")
 	cfg.saveCfg()
 	/*b, err := ioutil.ReadFile(filepath.Join(defaultConfigDir, cfg.Name))
-	if err != nil {
-        http.Error(w, err.Error(), http.StatusForbidden)
-		return
-    }
-	var c TestConfiguration
-	err = json.Unmarshal(b, &c)
-	if err != nil {
-		return
-	}*/
-	conf,_ := json.Marshal(cfg);
+		if err != nil {
+	        http.Error(w, err.Error(), http.StatusForbidden)
+			return
+	    }
+		var c TestConfiguration
+		err = json.Unmarshal(b, &c)
+		if err != nil {
+			return
+		}*/
+	conf, _ := json.Marshal(cfg)
 	//log.Printf("%s", conf)
 	pg := Program{
-		Name:      r.FormValue("name"),
+		Name: r.FormValue("name"),
 		//Command:   r.FormValue("command"),
 		Command:   string(conf),
 		Dir:       r.FormValue("dir"),
@@ -569,17 +570,17 @@ func (s *Supervisor) hAddProgram(w http.ResponseWriter, r *http.Request) {
 	//		"error":  fmt.Sprintf("Program %s already exists", strconv.Quote(pg.Name)),
 	//	})
 	//} else {
-		if err := s.addOrUpdateProgram(pg); err != nil {
-			data, _ = json.Marshal(map[string]interface{}{
-				"status": 1,
-				"error":  err.Error(),
-			})
-		} else {
-			s.saveDB()
-			data, _ = json.Marshal(map[string]interface{}{
-				"status": 0,
-			})
-		}
+	if err := s.addOrUpdateProgram(pg); err != nil {
+		data, _ = json.Marshal(map[string]interface{}{
+			"status": 1,
+			"error":  err.Error(),
+		})
+	} else {
+		s.saveDB()
+		data, _ = json.Marshal(map[string]interface{}{
+			"status": 0,
+		})
+	}
 	//}
 	w.Write(data)
 }
@@ -730,7 +731,7 @@ func (s *Supervisor) wsLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer c.Close()
-	
+
 	/*var data []byte
 	data, _ = json.Marshal(map[string]interface{}{
 		"log": string(proc.Output.Bytes()),
@@ -834,7 +835,7 @@ func newSupervisorHandler() (suv *Supervisor, hdlr http.Handler, err error) {
 		pgMap:     make(map[string]Program, 0),
 		procMap:   make(map[string]*Process, 0),
 		//eventB:    NewWriteBroadcaster(4 * 1024),
-		eventB:    NewWriteBroadcaster(1 * 1024),
+		eventB: NewWriteBroadcaster(1 * 1024),
 	}
 	if err = suv.loadDB(); err != nil {
 		return
