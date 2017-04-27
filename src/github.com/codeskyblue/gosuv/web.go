@@ -450,7 +450,7 @@ func (s *Supervisor) hAddProgram(w http.ResponseWriter, r *http.Request) {
 		}
 		ewell_dat_inter, err = strconv.Atoi(r.FormValue("ewell_dat_inter"))
 		if err != nil {
-			ewell_dat_inter = 10
+			ewell_dat_inter = 1
 		}
 		ewell_dat_times, err = strconv.Atoi(r.FormValue("ewell_dat_times"))
 		if err != nil {
