@@ -528,7 +528,6 @@ func (s *Supervisor) hAddProgram(w http.ResponseWriter, r *http.Request) {
 		cfg.Ewell.DataSts = "0"
 	}
 	cfg.Ewell.DataDatInter = ewell_dat_inter
-	fmt.Sprintf("Ewell dat Inter = %d \n", ewell_dat_inter)
 	cfg.Ewell.DataDatTimes = ewell_dat_times
 	cfg.Controller.Ip = r.FormValue("ip")
 	cfg.saveCfg()
