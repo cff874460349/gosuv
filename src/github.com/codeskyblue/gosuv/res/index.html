@@ -205,7 +205,7 @@
 			  </div>
 				
 			  <div class="form-group"><label for="inter">间隔：</label>
-                <input type="text" name="kyee_inter_hb" v-model="config.kyee.data_hb_inter" class="form-control" style="max-width:100px" placeholder="1(默认)">
+                <input type="text" name="kyee_inter_hb" v-model="config.kyee.data_hb_inter" class="form-control" style="max-width:100px" placeholder="10(默认)">
               </div>
 			  </div></fieldset>
 			  
@@ -285,7 +285,7 @@
 			  <fieldset class="fieldset" style="border:1px solid #ccc;border-radius:8px;padding:10px;">
 			  <div class="checkbox">
                 <label>
-                  <input name="ewell_data_sts" v-model="config.ewell.data_sts" type="checkbox" value="1"> 是否发送STS<font color="red">(每2分钟发1个)</font>
+                  <input name="ewell_data_sts" v-model="config.ewell.data_sts" type="checkbox" value="1"> 是否发送STS<font color="blue">(每2分钟发1个)</font>
                 </label>
               </div>
 			  <div class="checkbox">
@@ -295,7 +295,7 @@
               </div>
 			  <fieldset id="fields_dat"><div class="form-inline">
 					<div class="form-group"><label for="times">每</label>
-						<input type="text" name="ewell_dat_inter" v-model="config.ewell.data_dat_inter" class="form-control" style="max-width:100px" placeholder="1"><label>秒</label>
+						<input type="text" name="ewell_dat_inter" v-model="config.ewell.data_dat_inter" class="form-control" style="max-width:100px" placeholder="1(默认)"><label>秒</label>
 					</div>
 				
 					<div class="form-group"><label for="inter">发送</label>
