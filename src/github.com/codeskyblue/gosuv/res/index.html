@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>iot仿真测试平台</title>
+  <link rel="shortcut icon" type="image/png" href="/res/images/favicon.ico" />
+  <link rel="stylesheet" type="text/css" href="/res/bootstrap-3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/res/font-awesome-4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="/res/css/style.css">
+</head>
+
+<body id="app">
+  <nav class="navbar navbar-inverse">
+    <div class="container">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">iot仿真测试平台V0.8<!--<small class="user">[[.User]]</small>--></a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+          <ul class="nav navbar-nav">
+            <!-- <li class="hidden-xs">
+              <a>
+                <span class="glyphicon glyphicon-qrcode"></span>
+              </a>
+            </li> -->
+          </ul>
+          <ul id="nav-right-bar" class="nav navbar-nav navbar-right">
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="col-md-12">
+      <div class="alert alert-danger" role="alert" v-if="!isConnectionAlive">
+        <strong>Connection lost</strong> try to reconnect after 3s, or <a href="/" class="alert-link">connect immediately</a>
+      </div>
+    </div>
+    <div class="col-md-12">
+	  <button class="btn btn-default btn-sm" id="launchNewTest">
+        <span class="glyphicon glyphicon-plus"></span> 新增测试
+      </button>
+      <!--<button class="btn btn-default btn-sm" id="launchNewLianxin" disabled>
+        <span class="glyphicon glyphicon-plus"></span> 新增联新测试
+      </button>-->
+      <button class="btn btn-default btn-sm" v-on:click="refresh">
+        <span class="glyphicon glyphicon-refresh"></span> 刷新
+      </button>
+      <button class="btn btn-default btn-sm" v-on:click="reload">
+        <span class="glyphicon glyphicon-repeat"></span> 重启
+      </button>
+      <!--<button class="btn btn-default btn-sm" v-on:click="test" data-toggle="tooltip" data-placement="bottom" title="Tooltip on bottom">
+        <span class="glyphicon glyphicon-glass"></span> Test
+      </button>-->
+    </div>
+    <div class="col-md-12">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <td>Name</td>
+            <td>Status</td>
+            <td>Command</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="p in programs">
+            <td v-text="p.program.name"></td>
+            <td v-html="p.status | colorStatus"></td>
+            <td>
+              <button v-on:click="cmdStart(p.program.name)" class="btn btn-default btn-xs" :disabled='["running", "stopping"].indexOf(p.status) != -1'>
+                <span class="glyphicon glyphicon-play"></span> Start
+              </button>
+              <button class="btn btn-default btn-xs" v-on:click="cmdStop(p.program.name)" :disabled="!canStop(p.status)">
+                <span class="glyphicon glyphicon-stop"></span> Stop
+              </button>
+              <button class="btn btn-default btn-xs" v-on:click="cmdTail(p.program.name)">
+                <span class="fa fa-file-text-o"></span> Log
+              </button>
+              <a href="/settings/{{p.program.name}}" class="btn btn-default btn-xs">
+                <span class="fa fa-bar-chart"></span> Profiles
+              </a>
+              <!--<button class="btn btn-default btn-xs" data-toggle="tooltip" title="{{p.program.command}}">-->
+			  <button class="btn btn-default btn-xs" v-on:click="cmdEdit(p.program.command)">
+                <span class="glyphicon glyphicon-info-sign"></span> Edit
+              </button>
+              <button class="btn btn-default btn-xs" v-on:click="cmdDelete(p.program.name)">
+                <span class="color-red glyphicon glyphicon-trash"></span> Delete
+              </button>
+            </td>
+          </tr>
+          <!-- <tr class="success">
+            <td>gohttpserver</td>
+            <td>
+              <span class="status">Running(2h)</span>
+            </td>
+            <td>
+              <button class="btn btn-default btn-xs">
+                <span class="glyphicon glyphicon-play"></span> Start
+              </button>
+              <button class="btn btn-default btn-xs">
+                <span class="glyphicon glyphicon-stop"></span> Stop
+              </button>
+              <button class="btn btn-default btn-xs" disabled="true">
+                <span class="glyphicon glyphicon-minus"></span> Tail
+              </button>
+              <button class="btn btn-default btn-xs">
+                <span class="glyphicon glyphicon-cog"></span> Setting
+              </button>
+            </td>
+          </tr> -->
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-12">
+      <div id="footer" class="pull-right" style="margin: 2em 1em">
+        <a href="https://github.com/codeskyblue/gosuv">gosuv</a>, mod by chp</a>. 2017
+      </div>
+    </div>
+    <!-- panels -->
+    <!-- modals -->
+    
+    <!-- /.modal lianxin -->
+	<!-- modals -->
+    <div class="modal" id="newTest">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="formNewProgram" action="/api/programs" method="post">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <h4 class="modal-title">新建测试：</h4>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label>测试case：</label>
+                <input type="text" name="name" v-model="config.name" class="form-control" placeholder="case1(必须唯一)" required>
+              </div>
+			  <div class="form-group">
+                <label>控制器IP：</label>
+                <input type="text" name="ip" v-model="config.controller.ip" class="form-control" placeholder="192.168.1.1" required>
+              </div>
+			  <div class="form-group">
+                <label>IOP数：</label>
+                <input type="text" name="procnum" v-model="config.procnum" class="form-control" placeholder="5" required>
+              </div>
+			  <div class="form-group">
+                <label>IOP起始mac：</label>
+                <input type="text" name="iopmac" v-model="config.iopmac" class="form-control" placeholder="100000" required>
+              </div>
+			  <div class="form-inline"> 
+			  <label>业务：</label>
+			  <div class="checkbox">
+                <label>
+                  <input id="kyee_check" name="check_kyee" v-model="config.kyee.kyee" type="checkbox"> 京颐
+                </label>
+              </div>
+			  <div class="checkbox">
+                <label>
+                  <input id="lianxin_check" name="check_lianxin" v-model="config.ladrip.ladrip" type="checkbox"> 联新
+                </label>
+              </div>
+			  <div class="checkbox">
+                <label>
+                  <input id="ewell_check" name="check_ewell" v-model="config.ewell.ewell" type="checkbox"> 医惠
+                </label>
+              </div>
+			  </div>
+			  
+			  
+			  <fieldset id="fields_kyee" class="fieldset collapse" style="border:1px solid #ccc;border-radius:8px;padding:10px;"><legend style="margin-bottom:0px;border-bottom:0px;">京颐</legend>
+			  <div class="col-md-4">
+			  <fieldset class="fieldset" style="border:1px solid #ccc;border-radius:8px;padding:10px;">
+			  <div class="form-group">
+                <label>标签起始ID：</label>
+                <input type="text" name="kyeemac" v-model="config.kyee.tag_mac" class="form-control" style="max-width:100px" placeholder="4位数(9开头)">
+              </div>
+              <div class="form-group">
+                <label>标签数：</label>
+                <input type="text" name="kyeenum" v-model="config.kyee.tag_num" class="form-control" style="max-width:100px;margin-bottom:110px;" placeholder="10">
+              </div>
+			  </fieldset>
+			  </div>
+			  <fieldset class="fieldset" style="border:1px solid #ccc;border-radius:8px;padding:10px;">
+			  <font color="red">注意三个间隔不能是倍数关系</font>
+			  <div class="checkbox">
+                <label>
+                  <input id="check_hb" name="kyee_data_hb" v-model="config.kyee.data_hb" type="checkbox" value="1"> 是否发送心跳数据
+                </label>
+			  </div>
+			  
+			  
+			  <fieldset id="fields_hb" class="fieldset">
+			  <div class="form-inline">
+			  <div class="form-group"><label for="times">次数：</label>
+                <input type="text" name="kyee_times_hb" v-model="config.kyee.data_hb_times" class="form-control" style="max-width:100px" placeholder="0(无限制)">
+			  </div>
+				
+			  <div class="form-group"><label for="inter">间隔：</label>
+                <input type="text" name="kyee_inter_hb" v-model="config.kyee.data_hb_inter" class="form-control" style="max-width:100px" placeholder="10(默认)">
+              </div>
+			  </div></fieldset>
+			  
+			  <div class="checkbox">
+                <label>
+                  <input id="check_off" name="kyee_data_off" v-model="config.kyee.data_off" type="checkbox" value="1"> 是否发送剪断数据
+                </label>
+              </div>
+			  <fieldset id="fields_off"><div class="form-inline">
+			  <div class="form-group"><label for="times">次数：</label>
+                <input type="text" name="kyee_times_off" v-model="config.kyee.data_off_times" class="form-control" style="max-width:100px" placeholder="0(无限制)">
+			  </div>
+				
+			  <div class="form-group"><label for="inter">间隔：</label>
+                <input type="text" name="kyee_inter_off" v-model="config.kyee.data_off_inter" class="form-control" style="max-width:100px" placeholder="13(默认)">
+              </div>
+			  </div></fieldset>
+			  
+			  <div class="checkbox">
+                <label>
+                  <input id="check_out" name="kyee_data_out" v-model="config.kyee.data_out" type="checkbox" value="1"> 是否发送出口数据
+                </label>
+              </div>
+			  <fieldset id="fields_out"><div class="form-inline">
+			  <div class="form-group"><label for="times">次数：</label>
+                <input type="text" name="kyee_times_out" v-model="config.kyee.data_out_times" class="form-control" style="max-width:100px" placeholder="0(无限制)">
+			  </div>
+				
+			  <div class="form-group"><label for="inter">间隔：</label>
+                <input type="text" name="kyee_inter_out" v-model="config.kyee.data_out_inter" class="form-control" style="max-width:100px" placeholder="17(默认)">
+              </div>
+			  </div></fieldset>
+			  </fieldset>
+			  </fieldset>
+			  
+			  
+			  <fieldset id="fields_lianxin" class="fieldset collapse" style="border:1px solid #ccc;border-radius:8px;padding:10px;"><legend style="margin-bottom:0px;border-bottom:0px;">联新</legend>
+			  <div class="col-md-4">
+			  <fieldset class="fieldset" style="border:1px solid #ccc;border-radius:8px;padding:10px;">
+			  <div class="form-group">
+                <label>水龙头起始mac：</label>
+                <input type="text" name="lxmac" v-model="config.ladrip.tag_mac" class="form-control" placeholder="400001">
+              </div>
+              <div class="form-group">
+                <label>水龙头数：</label>
+                <input type="text" name="lxnum" v-model="config.ladrip.tag_num" class="form-control" placeholder="10">
+              </div>
+			  </fieldset>
+			  </div>
+			  <fieldset class="fieldset" style="border:1px solid #ccc;border-radius:8px;padding:10px;">
+			  <div class="checkbox">
+                <label>
+                  <input name="lx_data_weight" v-model="config.ladrip.data_weight" type="checkbox" value="1"> 是否发送重量数据<font color="red">(每2秒发1个)</font>
+                </label>
+              </div>
+			  <div class="checkbox" style="margin-bottom:90px;">
+                <label>
+                  <input name="lx_data_e2" v-model="config.ladrip.data_e2" type="checkbox" value="1"> 是否发送无用的E2
+                </label>
+              </div>
+			  </fieldset>
+			  </fieldset>
+			  
+			  <fieldset id="fields_ewell" class="fieldset collapse" style="border:1px solid #ccc;border-radius:8px;padding:10px;"><legend style="margin-bottom:0px;border-bottom:0px;">医惠</legend>
+			  <div class="col-md-4">
+			  <fieldset class="fieldset" style="border:1px solid #ccc;border-radius:8px;padding:10px;">
+			  <div class="form-group">
+                <label>标签起始mac：</label>
+                <input type="text" name="ewellmac" v-model="config.ewell.tag_mac" class="form-control" placeholder="00001111">
+              </div>
+              <div class="form-group">
+                <label>标签数：</label>
+                <input type="text" name="ewellnum" v-model="config.ewell.tag_num" class="form-control" placeholder="10">
+              </div>
+			  </fieldset>
+			  </div>
+			  <fieldset class="fieldset" style="border:1px solid #ccc;border-radius:8px;padding:10px;">
+			  <div class="checkbox">
+                <label>
+                  <input name="ewell_data_sts" v-model="config.ewell.data_sts" type="checkbox" value="1"> 是否发送STS<font color="red">(每2分钟发1个)</font>
+                </label>
+              </div>
+			  <div class="checkbox">
+                <label>
+                  <input name="ewell_data_dat" v-model="config.ewell.data_dat" type="checkbox" value="1"> 是否发送DAT
+                </label>				
+              </div>
+			  <fieldset id="fields_dat"><div class="form-inline">
+					<div class="form-group"><label for="times">每</label>
+						<input type="text" name="ewell_dat_inter" v-model="config.ewell.data_dat_inter" class="form-control" style="max-width:100px" placeholder="10"><label>秒</label>
+					</div>
+				
+					<div class="form-group"><label for="inter">发送</label>
+						<input type="text" name="ewell_dat_times" v-model="config.ewell.data_dat_times" class="form-control" style="max-width:100px" placeholder="1"><label>次</label>
+					</div>
+					</div></fieldset>
+			  </fieldset>
+			  </fieldset>
+              
+			  
+              <!--<div class="form-group">
+                <label>User</label>
+                <input type="text" name="user" class="form-control" placeholder="user, optional">
+              </div>
+              <div class="form-group">
+                <label>Fail Retries</label>
+                <input style="max-width: 5em" type="number" name="retries" class="form-control" min="0" step="1" value="3">
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input name="autostart" type="checkbox"> Auto start
+                </label>
+              </div>-->
+              <!-- <button type="submit" class="btn btn-Wdefault">Submit</button> -->
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+              <button type="submit" class="btn btn-primary" id="submit-btn">确定</button>
+            </div>
+          </form>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+	
+	
+    <!-- /.modal kyee -->
+    <div class="modal" id="modalTailf">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <form id="formNewProgram" action="/api/programs" method="post">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <h4 class="modal-title">Tail</h4>
+            </div>
+            <div class="modal-body">
+              <p>Line: {{log.line_count}}</p>
+              <pre v-html="log.content" class="realtime-log"></pre>
+              <div class="checkbox text-right">
+                <label>
+                  <input v-model="log.follow" type="checkbox"> Follow
+                </label>
+              </div>
+            </div>
+            <!--             <div class="modal-footer">
+            </div> -->
+          </form>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+  </div>
+  <script src="/res/js/jquery-3.1.0.min.js"></script>
+  <script src="/res/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+  <script src="/res/js/moment.min.js"></script>
+  <script src="/res/js/underscore-min.js"></script>
+  <script src="/res/js/vue-1.0.min.js"></script>
+  <script src="/res/js/common.js"></script>
+  <script src="/res/js/index.js"></script>
+  <script type="text/javascript">
+  $("#kyee_check").click(function() {$("#fields_kyee").toggle();});
+  $("#lianxin_check").click(function() {$("#fields_lianxin").toggle();});
+  $("#ewell_check").click(function() {$("#fields_ewell").toggle();});
+  //$("#check_hb").click(function() {$("#fields_hb").prop("disabled", false);});
+  //$("#check_off").click(function() {$("#fields_off").prop("disabled", false);});
+  //$("#check_out").click(function() {$("#fields_out").prop("disabled", false);});
+  $(function() {
+    //$("#editTest").click(function() {
+    //  console.log(1111);
+    //});
+    // $("#modalTailf").modal({
+    //   // show: true,
+    //   // keyboard: false,
+    //   // backdrop: 'static',
+    // })
+  });
+  $(function() {
+    $("#launchNewTest").click(function() {
+	  vm.config = {};
+	  $("#fields_kyee").hide();
+	  $("#fields_lianxin").hide();
+	  $("#fields_ewell").hide();
+      $("#newTest").modal({
+        show: true,
+        // keyboard: false,
+        backdrop: 'static',
+      })
+    });
+    // $("#modalTailf").modal({
+    //   // show: true,
+    //   // keyboard: false,
+    //   // backdrop: 'static',
+    // })
+  });
+  //$('#submit-btn').click(function() {
+  //  $("#newTest").modal('hide');
+  //});
+  
+  
+  </script>
+</body>
+
+</html>
