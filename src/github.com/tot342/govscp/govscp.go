@@ -43,6 +43,8 @@ type Configuration struct {
 		TagNum int `yaml:"tag_num"`
 		DataW  string `yaml:"data_weight"`
 		DataE2 string `yaml:"data_e2"`
+		WeightV  string `yaml:"weight_value" json:"weight_value"`
+		Rate   string `yaml:"rate" json:"rate"`
 	}
 	Ewell	struct {
 		Enable string `yaml:"ewell"`
