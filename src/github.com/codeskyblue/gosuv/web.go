@@ -520,7 +520,7 @@ func (s *Supervisor) hAddProgram(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("lx_rate") != "" {
 		cfg.Ladrip.Rate = r.FormValue("lx_rate")
 	} else {
-		cfg.Ladrip.Rate = "100"
+		cfg.Ladrip.Rate = "10"
 	}
 	cfg.Ewell.Enable = ewell_enable
 	if r.FormValue("ewellmac") != "" {
