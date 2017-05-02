@@ -53,13 +53,13 @@ type VscpCfg struct {
 		DataOutInter int    `yaml:"data_out_inter" json:"data_out_inter"`
 	} `yaml:"kyee" json:"kyee"`
 	Ladrip struct {
-		Enable string `yaml:"ladrip" json:"ladrip"`
-		TagMac string `yaml:"tag_mac" json:"tag_mac"`
-		TagNum int    `yaml:"tag_num" json:"tag_num"`
-		DataW  string `yaml:"data_weight" json:"data_weight"`
-		DataE2 string `yaml:"data_e2" json:"data_e2"`
-		WeightV  string `yaml:"weight_value" json:"weight_value"`
-		Rate   string `yaml:"rate" json:"rate"`
+		Enable  string `yaml:"ladrip" json:"ladrip"`
+		TagMac  string `yaml:"tag_mac" json:"tag_mac"`
+		TagNum  int    `yaml:"tag_num" json:"tag_num"`
+		DataW   string `yaml:"data_weight" json:"data_weight"`
+		DataE2  string `yaml:"data_e2" json:"data_e2"`
+		WeightV string `yaml:"weight_value" json:"weight_value"`
+		Rate    string `yaml:"rate" json:"rate"`
 	} `yaml:"ladrip" json:"ladrip"`
 	Ewell struct {
 		Enable       string `yaml:"ewell" json:"ewell"`
@@ -520,7 +520,7 @@ func (s *Supervisor) hAddProgram(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("lx_rate") != "" {
 		cfg.Ladrip.Rate = r.FormValue("lx_rate")
 	} else {
-		cfg.Ladrip.Rate = "10"
+		cfg.Ladrip.Rate = "0"
 	}
 	cfg.Ewell.Enable = ewell_enable
 	if r.FormValue("ewellmac") != "" {
