@@ -23,37 +23,37 @@ type Configuration struct {
 	Name    string `yaml:"name"`
 	Procnum int    `yaml:"procnum"`
 	Iopmac  string `yaml:"iopmac"`
-	Kyee	struct {
-		Enable string `yaml:"kyee"`
-		TagMac string `yaml:"tag_mac"`
-		TagNum int `yaml:"tag_num"`
-		DataHb string `yaml:"data_hb"`
-		DataHbTimes int `yaml:"data_hb_times"`
-		DataHbInter int `yaml:"data_hb_inter"`
-		DataOff string `yaml:"data_off"`
-		DataOffTimes int `yaml:"data_off_times"`
-		DataOffInter int `yaml:"data_off_inter"`
-		DataOut string `yaml:"data_out"`
-		DataOutTimes int `yaml:"data_out_times"`
-		DataOutInter int `yaml:"data_out_inter"`
+	Kyee    struct {
+		Enable       string `yaml:"kyee"`
+		TagMac       string `yaml:"tag_mac"`
+		TagNum       int    `yaml:"tag_num"`
+		DataHb       string `yaml:"data_hb"`
+		DataHbTimes  int    `yaml:"data_hb_times"`
+		DataHbInter  int    `yaml:"data_hb_inter"`
+		DataOff      string `yaml:"data_off"`
+		DataOffTimes int    `yaml:"data_off_times"`
+		DataOffInter int    `yaml:"data_off_inter"`
+		DataOut      string `yaml:"data_out"`
+		DataOutTimes int    `yaml:"data_out_times"`
+		DataOutInter int    `yaml:"data_out_inter"`
 	}
-	Ladrip	struct {
-		Enable string `yaml:"ladrip"`
-		TagMac string `yaml:"tag_mac"`
-		TagNum int `yaml:"tag_num"`
-		DataW  string `yaml:"data_weight"`
-		DataE2 string `yaml:"data_e2"`
-		WeightV  string `yaml:"weight_value" json:"weight_value"`
-		Rate   string `yaml:"rate" json:"rate"`
+	Ladrip struct {
+		Enable  string `yaml:"ladrip"`
+		TagMac  string `yaml:"tag_mac"`
+		TagNum  int    `yaml:"tag_num"`
+		DataW   string `yaml:"data_weight"`
+		DataE2  string `yaml:"data_e2"`
+		WeightV string `yaml:"weight_value" json:"weight_value"`
+		Rate    string `yaml:"rate" json:"rate"`
 	}
-	Ewell	struct {
-		Enable string `yaml:"ewell"`
-		TagMac string `yaml:"tag_mac"`
-		TagNum int `yaml:"tag_num"`
-		DataSts  string `yaml:"data_sts"`
-		DataDat string `yaml:"data_dat"`
-		DataDatInter int `yaml:"data_dat_inter"`
-		DataDatTimes int `yaml:"data_dat_times"`
+	Ewell struct {
+		Enable       string `yaml:"ewell"`
+		TagMac       string `yaml:"tag_mac"`
+		TagNum       int    `yaml:"tag_num"`
+		DataSts      string `yaml:"data_sts"`
+		DataDat      string `yaml:"data_dat"`
+		DataDatInter int    `yaml:"data_dat_inter"`
+		DataDatTimes int    `yaml:"data_dat_times"`
 	}
 	Controller struct {
 		Ip string `yaml:"ip"`
@@ -153,7 +153,7 @@ func main() {
 		//cmd.Stdout = logFd
 		//cmd.Stderr = logFd
 		var err error
-		var n,k,e,id,nn,kk,ee int
+		var n, k, e, id, nn, kk, ee int
 		b := make(chan bool)
 		//		var fout io.Writer
 		//		var OutputFile *os.File
@@ -185,15 +185,16 @@ func main() {
 			id = id + 1
 			go func() {
 				defer wg.Done()
-				cmd := exec.Command("vscp_demo", strconv.Itoa(j), cfg.Controller.Ip, strconv.Itoa(id), 
-						cfg.Kyee.Enable, strconv.Itoa(nn), strconv.Itoa(cfg.Kyee.TagNum), 
-						cfg.Kyee.DataHb, strconv.Itoa(cfg.Kyee.DataHbTimes), strconv.Itoa(cfg.Kyee.DataHbInter), 
-						cfg.Kyee.DataOff, strconv.Itoa(cfg.Kyee.DataOffTimes), strconv.Itoa(cfg.Kyee.DataOffInter), 
-						cfg.Kyee.DataOut, strconv.Itoa(cfg.Kyee.DataOutTimes), strconv.Itoa(cfg.Kyee.DataOutInter), 
-						cfg.Ladrip.Enable, strconv.Itoa(kk), strconv.Itoa(cfg.Ladrip.TagNum), 
-						cfg.Ladrip.DataW, cfg.Ladrip.DataE2, cfg.Ewell.Enable, strconv.Itoa(ee), strconv.Itoa(cfg.Ewell.TagNum),
-						cfg.Ewell.DataSts, cfg.Ewell.DataDat, strconv.Itoa(cfg.Ewell.DataDatInter), strconv.Itoa(cfg.Ewell.DataDatTimes), cfg.Name, strconv.Itoa(i))
-						
+				cmd := exec.Command("vscp_demo", strconv.Itoa(j), cfg.Controller.Ip, strconv.Itoa(id),
+					cfg.Kyee.Enable, strconv.Itoa(nn), strconv.Itoa(cfg.Kyee.TagNum),
+					cfg.Kyee.DataHb, strconv.Itoa(cfg.Kyee.DataHbTimes), strconv.Itoa(cfg.Kyee.DataHbInter),
+					cfg.Kyee.DataOff, strconv.Itoa(cfg.Kyee.DataOffTimes), strconv.Itoa(cfg.Kyee.DataOffInter),
+					cfg.Kyee.DataOut, strconv.Itoa(cfg.Kyee.DataOutTimes), strconv.Itoa(cfg.Kyee.DataOutInter),
+					cfg.Ladrip.Enable, strconv.Itoa(kk), strconv.Itoa(cfg.Ladrip.TagNum),
+					cfg.Ladrip.DataW, cfg.Ladrip.DataE2, cfg.Ewell.Enable, strconv.Itoa(ee), strconv.Itoa(cfg.Ewell.TagNum),
+					cfg.Ewell.DataSts, cfg.Ewell.DataDat, strconv.Itoa(cfg.Ewell.DataDatInter), strconv.Itoa(cfg.Ewell.DataDatTimes), cfg.Name, strconv.Itoa(i),
+					cfg.Ladrip.WeightV, cfg.Ladrip.Rate)
+
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
 				err = cmd.Start()
@@ -209,7 +210,7 @@ func main() {
 					//					fmt.Println("vscp " + strconv.Itoa(j) + " started")
 					//wg.Done()
 				default:
-					b <-true
+					b <- true
 				}
 			}()
 			<-b
